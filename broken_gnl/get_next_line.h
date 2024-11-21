@@ -5,14 +5,16 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nryser <nryser@student.42lausanne.ch>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/19 17:09:40 by nryser            #+#    #+#             */
-/*   Updated: 2024/11/19 17:09:40 by nryser           ###   ########.ch       */
+/*   Created: 2024/11/21 16:32:01 by nryser            #+#    #+#             */
+/*   Updated: 2024/11/21 16:32:15 by nryser           ###   ########.ch       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
-
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 32
+# endif
 # include <stdlib.h>
 # include <unistd.h>
 # include <string.h>  // For NULL
