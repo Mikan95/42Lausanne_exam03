@@ -147,6 +147,10 @@
 #include <string.h>
 #include <unistd.h>
 
+// CAUTION: memmem() cannot be used anymore!
+//allowed functions as of Nov 21 2024: 
+//printf, perror, calloc, malloc, realloc, strlen, read, free 
+
 /**
  * @brief Allocates and copies the contents of `str`.
  */
