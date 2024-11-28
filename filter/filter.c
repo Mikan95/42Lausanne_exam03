@@ -6,7 +6,7 @@
 /*   By: ameechan <ameechan@student.42.ch>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 22:19:56 by ameechan          #+#    #+#             */
-/*   Updated: 2024/11/28 15:36:54 by ameechan         ###   ########.fr       */
+/*   Updated: 2024/11/28 15:38:15 by ameechan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,6 @@ char	*ft_replacestr(const char *buf, const char *ndl)
 	result = calloc(buf_len + 1,  sizeof(char));
 	if (!result)
 		handle_error();
-
 	i = 0;
 	j = 0;
 	while (i < buf_len)
