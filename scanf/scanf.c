@@ -188,4 +188,5 @@ int main()
 //gcc -Wall -Wextra -Werror -o scanf_test scanf.c
 
 //cheak leaks:
-//leaks -atExit -- ./scanf_test   
+//leaks -atExit -- ./scanf_test
+//valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./scanf_test
