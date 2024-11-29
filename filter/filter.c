@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   filter.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ameechan <ameechan@student.42.ch>          +#+  +:+       +#+        */
+/*   By: ameechan <ameechan@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 22:19:56 by ameechan          #+#    #+#             */
-/*   Updated: 2024/11/28 16:55:56 by ameechan         ###   ########.fr       */
+/*   Updated: 2024/11/29 01:10:13 by ameechan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,29 +16,34 @@
 #include <string.h>
 #include <unistd.h>
 
-// CAUTION: memmem() cannot be used anymore!
+//CAUTION: memmem() cannot be used anymore!
 //allowed functions as of Nov 21 2024:
-//printf, perror, calloc, malloc, realloc, strlen, read, free
+//strlen, printf, perror, read, malloc, calloc, realloc, free
 
 /*
-The program takes one argument `ndl` and starts by reading from stdin.
-Whatever it reads from stdin will now be refered to as `hs`.
+Write a program that takes one and only one parameter s.
 
-The program then must find and replace every occurence of `ndl` in `hs`
-and replace it with how ever many strlen(ndl) `*` (stars)
+The program should take the standard output and replace
+every instance of s inside it with a corresponding number of "*".
+It should then print it to the standard output and return 0.
 
-It then must write the new string to stdout and return 0.
+If the program encounters an error when executing malloc or read,
+it should output "Error: " followed by the corresponding error code,
+to the standard error output and return 1.
 
-If an error occurs it must exit and write "Error: " followed
-by an adequate error message in stderr and return 1.
+Your program is generally equivalent to the
+filter.sh shell script we have provided.
 
-Allowed functions:
-printf, perror, calloc, malloc, realloc, strlen, read, free
+If the program is run with no parameter,
+an empty parameter, or multiple parameters,
+it should return 1.
 
-Usage example:
-$:echo "hello friend, hello foe" | ./filter "hello"
-***** friend, ***** foe$
-$:
+Usage:
+$> echo testa | ./filter est | cat -e
+t***a$
+
+$> echo 1234512345 | ./filter 234 | cat -e
+1***51***5$
 
 
 */
@@ -52,11 +57,8 @@ int	handle_error()
 
 int	strings_match(const char *buf, const char *ndl, size_t len)
 {
-	//if ndl is NULL return false immediately
-	if (!ndl || len == 0)
-		return (0);
-
 	size_t	i = 0;
+
 	while (i < len)
 	{
 		if (buf[i] != ndl[i]) //return false as soon as two characters don't match
@@ -69,26 +71,25 @@ int	strings_match(const char *buf, const char *ndl, size_t len)
 char	*ft_replacestr(const char *buf, const char *ndl)
 {
 	size_t	buf_len = strlen(buf);
-	size_t	ndl_len = 0;
+	size_t	ndl_len = strlen(ndl);
 	size_t	i, j, k;
-	char	*result;
+	char	*res;
 
-	if (ndl)
-		ndl_len = strlen(ndl);
-	result = calloc(buf_len + 1,  sizeof(char));
-	if (!result)
+	res = calloc(buf_len,  sizeof(char));
+	if (!res)
 		handle_error();
 	i = 0;
 	j = 0;
-	while (i < buf_len)
+	while (i < buf_len)//while not reached the end of buf
 	{
+		//if there is enough space in buf to replace ndl && strings match
 		if (i <= (buf_len - ndl_len) && strings_match(&buf[i], ndl, ndl_len))
 		{
 			//found matching string, replace ndl_len `*` (stars)
 			k = 0;
 			while(k < ndl_len)
 			{
-				result[j++] = '*';
+				res[j++] = '*';
 				k++;
 			}
 			//skip over replaced ndl
@@ -96,42 +97,43 @@ char	*ft_replacestr(const char *buf, const char *ndl)
 		}
 		else
 			//otherwise simply copy over the characters
-			result[j++] = buf[i++];
+			res[j++] = buf[i++];
 	}
-	return (result);
+	return (res);
 }
 
 int	main(int ac, char **av)
 {
-	char	*result;
-	char	*buf;
+	char		*res;
+	char		*buf;
 	const char	*ndl;
-	size_t	buffer_size, total_read;
-	ssize_t	bytes_read;
+	size_t		buffer_size;
+	size_t		total_read;
+	ssize_t		bytes_read;
 
-	if (ac > 2)//return error if more than two args
-		return (handle_error());
-
-	if (av[1])//point `ndl` to the substring in the user's input
+	//return 1 if no argument or empty argument
+	if (av[1] && av[1][0] != '\0')
 		ndl = av[1];
 	else
-		ndl = NULL;
+		return (1);
 
+	//initialize buffer_size, total_read and bytes_read
 	buffer_size = 20;
 	total_read = 0;
+	bytes_read = 0;
 	buf = malloc(buffer_size); //allocate memory for buf
 	if (!buf)
 		handle_error();
 
 	//read in a loop appending to buf with each iterration until 0 (end of file)
-	//add total_size to buffer each loop to ensure read doesn't overwrite data in buf
+	//add total_size to buffer each loop to ensure read doesn't overwrite data already stored in buf
 	//substract total_size from buffer size to ensure you don't read out of bounds
 	while ((bytes_read = read(STDIN_FILENO, buf + total_read, buffer_size - total_read)) > 0)
 	{
 		total_read += bytes_read;//		keep track of total_size
 
-//											dynamically allocate more memory if
-		if (total_read >= buffer_size)//	total_size gets bigger than buffer_size
+//											dynamically allocate more memory to buf
+		if (total_read >= buffer_size)//	if total_size goes over max capacity
 		{
 			buffer_size *= 2;
 			buf = realloc(buf, buffer_size);
@@ -143,20 +145,18 @@ int	main(int ac, char **av)
 	if (bytes_read == -1)
 		handle_error();
 
-	//Null terminate string read from stdin
+	//Null terminate string captured from stdin
 	buf[total_read] = '\0';
 
 	//replace every occurence of `ndl` in `buf`
-	result = ft_replacestr(buf, ndl);
+	res = ft_replacestr(buf, ndl);
 
-	//return an error if result is NULL
-	if (!result)
+	//return an error if res is NULL
+	if (!res)
 		handle_error();
 
-	//print the result to stdout
-	printf("%s", result);
-	free(buf);
-	free(result);
+	//print the res to stdout
+	printf("%s", res);
 
 	return (0);
 }
