@@ -6,7 +6,7 @@
 /*   By: ameechan <ameechan@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 22:19:56 by ameechan          #+#    #+#             */
-/*   Updated: 2024/11/29 01:10:13 by ameechan         ###   ########.fr       */
+/*   Updated: 2024/11/29 15:49:28 by ameechan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ $> echo 1234512345 | ./filter 234 | cat -e
 int	handle_error()
 {
 	perror("Error: ");
-	exit (1);
+	return (1);
 }
 
 int	strings_match(const char *buf, const char *ndl, size_t len)
@@ -77,7 +77,7 @@ char	*ft_replacestr(const char *buf, const char *ndl)
 
 	res = calloc(buf_len,  sizeof(char));
 	if (!res)
-		handle_error();
+		return(NULL);
 	i = 0;
 	j = 0;
 	while (i < buf_len)//while not reached the end of buf
@@ -111,10 +111,9 @@ int	main(int ac, char **av)
 	size_t		total_read;
 	ssize_t		bytes_read;
 
-	//return 1 if no argument or empty argument
-	if (av[1] && av[1][0] != '\0')
+	if (ac == 2 && av[1] && av[1][0] != '\0')
 		ndl = av[1];
-	else
+	else	//No argument, multiple arguments or empty argument, return 1
 		return (1);
 
 	//initialize buffer_size, total_read and bytes_read
@@ -123,7 +122,7 @@ int	main(int ac, char **av)
 	bytes_read = 0;
 	buf = malloc(buffer_size); //allocate memory for buf
 	if (!buf)
-		handle_error();
+		return(handle_error());
 
 	//read in a loop appending to buf with each iterration until 0 (end of file)
 	//add total_size to buffer each loop to ensure read doesn't overwrite data already stored in buf
@@ -138,12 +137,12 @@ int	main(int ac, char **av)
 			buffer_size *= 2;
 			buf = realloc(buf, buffer_size);
 			if (!buf)
-				handle_error();
+				return(handle_error());
 		}
 	}
 	//return an error if read returned -1
 	if (bytes_read == -1)
-		handle_error();
+		return(handle_error());
 
 	//Null terminate string captured from stdin
 	buf[total_read] = '\0';
@@ -153,7 +152,7 @@ int	main(int ac, char **av)
 
 	//return an error if res is NULL
 	if (!res)
-		handle_error();
+		return(handle_error());
 
 	//print the res to stdout
 	printf("%s", res);
