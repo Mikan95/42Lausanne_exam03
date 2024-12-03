@@ -1,114 +1,76 @@
-#include <stdio.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
-void	handle_error(const char *errmsg)
+char *read_input(void)
 {
-	// Use perror for error messages and exit
-	perror(errmsg);
-	exit(1);
+    char *buf = malloc(1), tmp;
+    int n, len = 0;
+
+    if (!buf)
+    {
+        write(2, "Error: malloc failed\n", 21);
+        return (NULL);
+    }
+    while ((n = read(0, &tmp, 1)) > 0)
+    {
+        char *new_buf = realloc(buf, len + 2);
+        if (!new_buf)
+        {
+            free(buf);
+            write(2, "Error: realloc failed\n", 22);
+            return (NULL);
+        }
+        buf = new_buf;
+        buf[len++] = tmp;
+    }
+    if (n < 0)
+    {
+        free(buf);
+        write(2, "Error: read failed\n", 19);
+        return (NULL);
+    }
+    buf[len] = '\0';
+    return (buf);
 }
 
-int	strings_match(const char *str1, const char *str2, size_t len)
+void replace(char *str, char *s)
 {
-	for (size_t i = 0; i < len; i++)
-	{
-		if (str1[i] != str2[i])
-			return 0;
-	}
-	return 1;
+    int len = strlen(s), i = 0, j;
+
+    while (str[i])
+    {
+        for (j = 0; s[j] && str[i + j] == s[j]; j++);
+        if (j == len)
+        {
+            for (j = 0; j < len; j++)
+                str[i + j] = '*';
+            i += len;
+        }
+        else
+            i++;
+    }
 }
 
-char	*ft_replacestr(const char *buf, const char *ndl)
+int main(int argc, char **argv)
 {
-	size_t	buf_len = strlen(buf);
-	size_t	ndl_len = strlen(ndl);
-	size_t	i = 0, j = 0, k;
-	char	*result;
+    char *buf;
 
-	if (ndl_len == 0)
-	{
-		// Simulate error using perror
-		//errno = 22; // EINVAL: Invalid argument
-		handle_error("Error: Pattern string cannot be empty");
-	}
-
-	// Allocate memory for the worst-case scenario: everything replaced by '*'
-	result = calloc(buf_len * (ndl_len ? ndl_len : 1) + 1, sizeof(char));
-	if (!result)
-		handle_error("Error: Memory Allocation Failed");
-
-	while (i < buf_len)
-	{
-		if (i <= buf_len - ndl_len && strings_match(&buf[i], ndl, ndl_len))
-		{
-			for (k = 0; k < ndl_len; k++)
-				result[j++] = '*';
-			i += ndl_len;
-		}
-		else
-		{
-			result[j++] = buf[i++];
-		}
-	}
-	return result;
+    if (argc != 2 || !argv[1][0])
+    {
+        write(2, "Error: invalid arguments\n", 25);
+        return (1);
+    }
+    buf = read_input();
+    if (!buf)
+        return (1);
+    replace(buf, argv[1]);
+    write(1, buf, strlen(buf));
+    free(buf);
+    return (0);
 }
 
-int	main(int ac, char **av)
-{
-	char	*result;
-	char	*buf;
-	const char	*ndl;
-	size_t	buffer_size = 1024;
-	size_t	total_read = 0;
-	ssize_t	bytes_read;
 
-	if (ac > 2)
-	{
-		//errno = 22; // EINVAL: Invalid argument
-		handle_error("Error: Too many arguments");
-	}
-
-	ndl = (ac == 2) ? av[1] : NULL;
-
-	buf = malloc(buffer_size);
-	if (!buf)
-		handle_error("Error: Memory Allocation Failed");
-
-	while ((bytes_read = read(0, buf + total_read, buffer_size - total_read - 1)) > 0)// -1 to leave space for null terminator
-	{
-		total_read += bytes_read;
-		if (total_read >= buffer_size - 1)
-		{
-			buffer_size *= 2;
-			buf = realloc(buf, buffer_size);
-			if (!buf)
-				handle_error("Error: Memory Allocation Failed");
-		}
-	}
-	if (bytes_read == -1)
-		handle_error("Error: Failed to read input");
-
-	buf[total_read] = '\0';
-
-	if (!ndl)
-	{
-		printf("%s", buf);
-		free(buf);
-		return 0;
-	}
-
-	result = ft_replacestr(buf, ndl);
-	if (!result)
-		handle_error("Error: Failed to replace strings");
-
-	printf("%s", result);
-	free(buf);
-	free(result);
-
-	return 0;
-}
 
 
 // to compile use gcc -Wall -Wextra -Werror -o program filter.c
