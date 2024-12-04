@@ -70,4 +70,4 @@ int main(int argc, char **argv)
 
 
 // to compile use gcc -Wall -Wextra -Werror -o program filter.c
-// to run use valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./program <needle> < test1.txt
+// to run use valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./program <needle> < files/huge.txt
