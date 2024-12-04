@@ -8,13 +8,17 @@ char *read_input(void)
     int n, len = 0;
 
     if (!buf)
+    {
+        perror("Error: ");
         return (NULL);
+    }
     while ((n = read(0, &tmp, 1)) > 0)
     {
         char *new_buf = realloc(buf, len + 2);
         if (!new_buf)
         {
             free(buf);
+            perror("Error: ");
             return (NULL);
         }
         buf = new_buf;
@@ -23,6 +27,7 @@ char *read_input(void)
     if (n < 0)
     {
         free(buf);
+        perror("Error: ");
         return (NULL);
     }
     buf[len] = '\0';
@@ -57,7 +62,7 @@ int main(int argc, char **argv)
     if (!buf)
         return (1);
     replace(buf, argv[1]);
-    write(1, buf, strlen(buf));
+    printf("%s",buf);
     free(buf);
     return (0);
 }
