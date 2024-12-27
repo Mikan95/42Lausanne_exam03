@@ -6,7 +6,7 @@
 /*   By: ameechan <ameechan@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 22:19:56 by ameechan          #+#    #+#             */
-/*   Updated: 2024/11/29 15:49:28 by ameechan         ###   ########.fr       */
+/*   Updated: 2024/12/27 18:59:56 by ameechan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,10 @@
 //strlen, printf, perror, read, malloc, calloc, realloc, free
 
 /*
-Write a program that takes one and only one parameter s.
+Write a program that takes one and only one parameter `s`.
 
 The program should take the standard output and replace
-every instance of s inside it with a corresponding number of "*".
+every instance of `s` inside it with a corresponding number of "*".
 It should then print it to the standard output and return 0.
 
 If the program encounters an error when executing malloc or read,
@@ -51,11 +51,11 @@ $> echo 1234512345 | ./filter 234 | cat -e
 
 int	handle_error()
 {
-	perror("Error: ");
+	perror("Error"); //(perrror automatically adds a colon and a space after the error message)
 	return (1);
 }
 
-int	strings_match(const char *buf, const char *ndl, size_t len)
+int	strings_match(char *buf, char *ndl, size_t len)
 {
 	size_t	i = 0;
 
@@ -68,58 +68,15 @@ int	strings_match(const char *buf, const char *ndl, size_t len)
 	return (1);//	both strings match, return 1
 }
 
-char	*ft_replacestr(const char *buf, const char *ndl)
-{
-	size_t	buf_len = strlen(buf);
-	size_t	ndl_len = strlen(ndl);
-	size_t	i, j, k;
-	char	*res;
-
-	res = calloc(buf_len,  sizeof(char));
-	if (!res)
-		return(NULL);
-	i = 0;
-	j = 0;
-	while (i < buf_len)//while not reached the end of buf
-	{
-		//if there is enough space in buf to replace ndl && strings match
-		if (i <= (buf_len - ndl_len) && strings_match(&buf[i], ndl, ndl_len))
-		{
-			//found matching string, replace ndl_len `*` (stars)
-			k = 0;
-			while(k < ndl_len)
-			{
-				res[j++] = '*';
-				k++;
-			}
-			//skip over replaced ndl
-			i += ndl_len;
-		}
-		else
-			//otherwise simply copy over the characters
-			res[j++] = buf[i++];
-	}
-	return (res);
-}
-
 int	main(int ac, char **av)
 {
-	char		*res;
-	char		*buf;
-	const char	*ndl;
-	size_t		buffer_size;
-	size_t		total_read;
-	ssize_t		bytes_read;
+	char	*buf;
+	int		buffer_size = 20;
+	int		total_read = 0;
+	int		bytes_read = 0;
 
-	if (ac == 2 && av[1] && av[1][0] != '\0')
-		ndl = av[1];
-	else	//No argument, multiple arguments or empty argument, return 1
+	if (ac != 2 || av[1] == 0) //if empty paramater, no parameter or multiple parameters return 1
 		return (1);
-
-	//initialize buffer_size, total_read and bytes_read
-	buffer_size = 20;
-	total_read = 0;
-	bytes_read = 0;
 	buf = malloc(buffer_size); //allocate memory for buf
 	if (!buf)
 		return(handle_error());
@@ -127,7 +84,7 @@ int	main(int ac, char **av)
 	//read in a loop appending to buf with each iterration until 0 (end of file)
 	//add total_size to buffer each loop to ensure read doesn't overwrite data already stored in buf
 	//substract total_size from buffer size to ensure you don't read out of bounds
-	while ((bytes_read = read(STDIN_FILENO, buf + total_read, buffer_size - total_read)) > 0)
+	while ((bytes_read = read(0, buf + total_read, buffer_size - total_read)) > 0)
 	{
 		total_read += bytes_read;//		keep track of total_size
 
@@ -141,26 +98,36 @@ int	main(int ac, char **av)
 		}
 	}
 	//return an error if read returned -1
-	if (bytes_read == -1)
+	if (bytes_read < 0)
 		return(handle_error());
 
 	//Null terminate string captured from stdin
 	buf[total_read] = '\0';
 
-	//replace every occurence of `ndl` in `buf`
-	res = ft_replacestr(buf, ndl);
-
-	//return an error if res is NULL
-	if (!res)
-		return(handle_error());
-
-	//print the res to stdout
-	printf("%s", res);
-
+	int i = 0;
+	while (buf[i]) //loop through buf until end of string
+	{
+		if (strings_match(&buf[i], av[1], strlen(av[1]))) //if strings match, replace with stars
+		{
+			int	j = 0;
+			while (j < (int)strlen(av[1])) //strlen retruns size_t, cast to int to avoid warning
+			{
+				buf[i + j] = '*';
+				j++;
+			}
+			i += j;
+		}
+		else	//otherwise continue to next character
+		{
+			i++;
+		}
+	}
+	//print buf to stdout
+	printf("%s", buf);
 	return (0);
 }
 
 
 // to compile use gcc -Wall -Wextra -Werror -o program filter.c
-// to run use ./program <needle> < test1.txt
+// to run use ./program <needle> < files/test1.txt
 
