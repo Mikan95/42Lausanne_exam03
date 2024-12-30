@@ -1,98 +1,55 @@
-#include <stdlib.h>
+#include <stdio.h>
 #include <unistd.h>
-#include <stdbool.h>
 
-void swap(char *a, char *b)
+int	ft_strlen(char *str)
+{
+	int	i = 0;
+	while (str[i])
+		i++;
+	return (i);
+}
+
+void	swap(char *a, char *b)
 {
 	char temp = *a;
-	*a = *b; 
+	*a = *b;
 	*b = temp;
 }
 
-int string_length(char *str)
+char	*ft_sort(char *str)
 {
-	int len = 0; 
-	while (str[len]) 
-		len++; 
-	return len;
+	for (int i = 0; str[i]; i++)
+		for (int j = i + 1; str[j]; j++)
+			if (str[i] > str[j])
+				swap(&str[i], &str[j]);
+	return (str);
 }
 
-char *string_duplicate(char *str)
+int	next_permutation(char *str, int len)
 {
-	int len = string_length(str);
-	char *copy = malloc(len + 1);
-	for (int i = 0; i <= len; i++) 
-		copy[i] = str[i];
-	return copy;
+	int i = len - 2, j = len - 1;
+	while (i >= 0 && str[i] >= str[i + 1]) i--;
+	if (i < 0) return (0);
+	while (str[j] <= str[i]) j--;
+	swap(&str[i], &str[j]);
+	for (int left = i + 1, right = len - 1; left < right; left++, right--)
+		swap(&str[left], &str[right]);
+	return (1);
 }
 
-int string_compare(char *str1, char *str2)
+int	main(int ac, char **av)
 {
-	while (*str1 && *str2) 
+	if (ac != 2) return (1);
+	int len = ft_strlen(av[1]);
+	char *str = ft_sort(av[1]);
+	write(1, str, len);
+	write(1, "\n", 1);
+	while (next_permutation(str, len))
 	{
-		if (*str1 != *str2) 
-			return *str1 - *str2;
-		str1++; str2++;
-	}
-	return *str1 - *str2;
-}
-
-void sort_results(char **results, int n)
-{
-	for (int i = 0; i < n - 1; i++)
-	{
-		for (int j = i + 1; j < n; j++)
-			if (string_compare(results[i], results[j]) > 0) 
-			{
-				char *temp = results[i];
-				results[i] = results[j];
-				results[j] = temp;
-			}
-	}
-}
-
-void permute(char *str, int start, int end, char **results, int *index)
-{
-    if (start == end)
-	{ 
-		results[(*index)++] = string_duplicate(str);
-		return;
-	}
-    for (int i = start; i <= end; i++)
-	{
-        bool seen = false;
-        for (int j = start; j < i; j++)
-			if (str[j] == str[i])
-				{ seen = true; break; }
-        if (seen)
-			continue;
-        swap(&str[start], &str[i]);
-        permute(str, start + 1, end, results, index);
-        swap(&str[start], &str[i]);
-    }
-}
-
-int main(int argc, char **argv) {
-	if (argc != 2) 
-		return 1;
-	char *input = argv[1];
-	int len = string_length(input), fact = 1;
-	for (int i = 2; i <= len; i++) 
-		fact *= i;
-	char **results = malloc(fact * sizeof(char *));
-	if (!results) 
-		return 1;
-	int index = 0;
-	permute(input, 0, len - 1, results, &index);
-	sort_results(results, index);
-	for (int i = 0; i < index; i++) 
-	{
-		write(1, results[i], string_length(results[i]));
+		write(1, str, len);
 		write(1, "\n", 1);
-		free(results[i]);
 	}
-	free(results);
-	return 0;
+	return (0);
 }
 
 
