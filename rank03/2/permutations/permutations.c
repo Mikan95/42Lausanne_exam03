@@ -51,28 +51,25 @@ void sort_results(char **results, int n)
 	}
 }
 
-void permute(char *str, int l, int r, char **results, int *index)
+void permute(char *str, int start, int end, char **results, int *index)
 {
-	if (l == r) 
-	{
-		results[(*index)++] = string_duplicate(str); 
+    if (start == end)
+	{ 
+		results[(*index)++] = string_duplicate(str);
 		return;
-		}
-	for (int i = l; i <= r; i++)
-	{
-		bool seen = false;
-		for (int j = l; j < i; j++) 
-			if (str[j] == str[i]) 
-			{ 
-				seen = true;
-				break; 
-			}
-		if (seen) 
-			continue;
-		swap(&str[l], &str[i]);
-		permute(str, l + 1, r, results, index);
-		swap(&str[l], &str[i]);
 	}
+    for (int i = start; i <= end; i++)
+	{
+        bool seen = false;
+        for (int j = start; j < i; j++)
+			if (str[j] == str[i])
+				{ seen = true; break; }
+        if (seen)
+			continue;
+        swap(&str[start], &str[i]);
+        permute(str, start + 1, end, results, index);
+        swap(&str[start], &str[i]);
+    }
 }
 
 int main(int argc, char **argv) {
