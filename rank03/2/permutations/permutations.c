@@ -9,7 +9,8 @@ void swap(char *a, char *b)
 	*b = temp;
 }
 
-int string_length(char *str) {
+int string_length(char *str)
+{
 	int len = 0; 
 	while (str[len]) 
 		len++; 
@@ -76,33 +77,23 @@ void permute(char *str, int l, int r, char **results, int *index)
 
 int main(int argc, char **argv) {
 	if (argc != 2) 
-	{
-		write(1, "Usage: ./permutations <string>\n", 33);
 		return 1;
-	}
-
 	char *input = argv[1];
 	int len = string_length(input), fact = 1;
 	for (int i = 2; i <= len; i++) 
 		fact *= i;
-
 	char **results = malloc(fact * sizeof(char *));
 	if (!results) 
-	{
-		write(1, "Memory allocation failed\n", 25);
 		return 1;
-	}
-
 	int index = 0;
 	permute(input, 0, len - 1, results, &index);
 	sort_results(results, index);
-
-	for (int i = 0; i < index; i++) {
+	for (int i = 0; i < index; i++) 
+	{
 		write(1, results[i], string_length(results[i]));
 		write(1, "\n", 1);
 		free(results[i]);
 	}
-
 	free(results);
 	return 0;
 }
