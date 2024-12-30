@@ -26,8 +26,6 @@ void generate_permutations(char *str, int start, int end)
     for (int i = start; i <= end; i++)
     {
         swap(&str[start], &str[i]);
-		printf("start: %d, i: %d\n", start, i);
-		printf("start: %d, end: %d\n", start, end);
         generate_permutations(str, start + 1, end);
         swap(&str[start], &str[i]);
     }
