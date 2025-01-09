@@ -1,5 +1,5 @@
-#include <stdlib.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 void print_solution(int *board, int n)
 {
@@ -11,7 +11,7 @@ void print_solution(int *board, int n)
 			write(1, " ", 1);
 	}
 	write(1, "\n", 1); // Print solution in required format
-	//draw_board(board, n); // Draw the board
+	//draw_board(board, n);
 }
 
 int is_safe(int *board, int col, int row)
@@ -45,16 +45,19 @@ void solve(int *board, int col, int n)
 
 int main(int argc, char **argv)
 {
-	int n = argc == 2 ? atoi(argv[1]) : 0;
-	if (n <= 0)
+	if (argc != 2)
 		return 1;
-	int *board = malloc(n * sizeof(int)); // Allocate memory for the board
-	if (!board)
+
+	int n = atoi(argv[1]);
+	if (n <= 0) // No check for maximum value
 		return 1;
+
+	int board[n]; // Dynamically sized array on the stack
 	solve(board, 0, n); // Start solving from the first column
-	free(board);        // Free allocated memory
 	return 0;
 }
+//gcc -Wall -Wextra -Werror -o n_queens n_queens.c
+//./n_queens 4
 
 // Function to draw the board
 // void draw_board(int *board, int n)
