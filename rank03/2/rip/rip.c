@@ -7,7 +7,6 @@ void print_solution(char *str)
 		write(1, &str[i], 1);
 	write(1, "\n", 1);
 }
-
 void solve(char *str, int pos, int open, int to_remove, char *temp, int temp_pos, int *found)
 {
 	if (!str[pos])
@@ -22,12 +21,11 @@ void solve(char *str, int pos, int open, int to_remove, char *temp, int temp_pos
 	}
 	if (to_remove > 0)
 	{
-		temp[temp_pos] = '_'; // Add & to temp to indicate removal
+		temp[temp_pos] = '_'; // Add '_' to temp to indicate removal
 		solve(str, pos + 1, open, to_remove - 1, temp, temp_pos + 1, found);
 	}
 	if (str[pos] == '(')
 	{
-		// Include the '('
 		temp[temp_pos] = '(';
 		solve(str, pos + 1, open + 1, to_remove, temp, temp_pos + 1, found);
 	}
@@ -42,7 +40,6 @@ void solve(char *str, int pos, int open, int to_remove, char *temp, int temp_pos
 	}
 	else
 	{
-		// Include non-parenthesis characters (if any)
 		temp[temp_pos] = str[pos];
 		solve(str, pos + 1, open, to_remove, temp, temp_pos + 1, found);
 	}
@@ -76,7 +73,6 @@ int main(int argc, char **argv)
 	char temp[n + 1];
 	int min_removals = get_min_removals(argv[1]);
 	int found = 0;
-
 	solve(argv[1], 0, 0, min_removals, temp, 0, &found);
 	return 0;
 }
