@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <string.h>
+#include <unistd.h>
 
 typedef struct {
     float x, y;
@@ -34,9 +34,7 @@ void permute(int *order, int start, int n, float *min_path, City *cities)
         int temp = order[start];
         order[start] = order[i];
         order[i] = temp;
-
-        permute(order, start + 1, n, min_path, cities);
-
+        permute(order, start + 1, n, &*min_path, cities);
         temp = order[start];
         order[start] = order[i];
         order[i] = temp;
@@ -45,22 +43,18 @@ void permute(int *order, int start, int n, float *min_path, City *cities)
 
 int main()
 {
+    FILE *input = stdin; // Read input from standard input
     City cities[11];
     int n = 0;
-    char *line = NULL;
-    size_t len = 0;
-
-    while (getline(&line, &len, stdin) != -1 && n < 11)
+    while (n < 11 && !feof(input))
     {
-        if (sscanf(line, "%f, %f", &cities[n].x, &cities[n].y) != 2)
+        if (fscanf(input, "%f, %f\n", &cities[n].x, &cities[n].y) != 2)
         {
             fprintf(stderr, "Error: Invalid input\n");
-            free(line);
             return 1;
         }
         n++;
     }
-    free(line);
     if (n < 2)
     {
         fprintf(stderr, "Error: Not enough cities\n");
@@ -72,7 +66,46 @@ int main()
 
     float min_path = 1e9;
     permute(order, 0, n, &min_path, cities);
-
-    printf("%.2f\n", min_path);
+	fprintf(stdout, "%.2f\n", min_path); //changed from write_result if needed
+	//write_result(min_path); // Output the result with write_result
     return 0;
 }
+//to execute: gcc -Wall -Wextra -Werror tsp.c -lm -o tsp
+// cat test_tsp/filename.txt | ./tsp
+
+
+// void write_result(float result)
+// {
+//     int int_part = (int)result;
+//     int frac_part = (int)((result - int_part) * 100);
+
+//     char buffer[32];
+//     int len = 0;
+
+//     // Convert integer part
+//     if (int_part == 0)
+//         buffer[len++] = '0';
+//     else
+//     {
+//         char temp[16];
+//         int temp_len = 0;
+//         while (int_part > 0)
+//         {
+//             temp[temp_len++] = (int_part % 10) + '0';
+//             int_part /= 10;
+//         }
+//         for (int i = temp_len - 1; i >= 0; i--)
+//             buffer[len++] = temp[i];
+//     }
+
+//     // Add decimal point and fractional part
+//     buffer[len++] = '.';
+//     buffer[len++] = (frac_part / 10) + '0';
+//     buffer[len++] = (frac_part % 10) + '0';
+//     buffer[len++] = '\n';
+
+//     write(STDOUT_FILENO, buffer, len);
+// }
+
+
+
