@@ -61,13 +61,11 @@ int main()
         n++;
     }
     free(line);
-
     if (n < 2)
     {
         fprintf(stderr, "Error: Not enough cities\n");
         return 1;
     }
-
     int order[11];
     for (int i = 0; i < n; i++)
         order[i] = i;
